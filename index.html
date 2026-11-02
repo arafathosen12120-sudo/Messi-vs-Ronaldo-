@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827"><title>Messi vs Ronaldo Spin Battle</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#29476c,#101827 70%);color:white;font-family:Arial,sans-serif;text-align:center;min-height:100vh}
+main{max-width:520px;margin:auto;padding:18px 15px 30px}h1{font-size:clamp(25px,7vw,37px);margin:8px 0 4px}.sub{font-size:12px;letter-spacing:2px;color:#c6d5e8}
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:17px 0}.score{padding:13px 5px;border-radius:15px;font-weight:bold}.blue{background:linear-gradient(135deg,#1976d2,#073c83)}.red{background:linear-gradient(135deg,#e0444c,#7c1825)}.score strong{display:block;font-size:38px;margin:5px}.score small{letter-spacing:2px}
+.stage{width:min(86vw,360px);aspect-ratio:1;margin:25px auto 17px;position:relative}.pointer{position:absolute;z-index:3;top:-10px;left:50%;transform:translateX(-50%);border-left:18px solid transparent;border-right:18px solid transparent;border-top:42px solid #ffda62;filter:drop-shadow(0 3px 3px #0008)}
+.wheel{position:absolute;inset:0;border:8px solid #f3c84f;border-radius:50%;overflow:hidden;background:conic-gradient(#1768c5 0 45deg,#d43a42 45deg 90deg,#1768c5 90deg 135deg,#d43a42 135deg 180deg,#1768c5 180deg 225deg,#d43a42 225deg 270deg,#1768c5 270deg 315deg,#d43a42 315deg);box-shadow:0 12px 30px #0009;transition:transform 5.2s cubic-bezier(.12,.68,.12,1)}
+.name{position:absolute;left:50%;top:50%;width:108px;margin-left:-54px;margin-top:-13px;font-weight:900;font-size:14px;text-shadow:0 2px 4px #000;white-space:nowrap}
+.hub{position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);width:62px;height:62px;border:5px solid white;border-radius:50%;background:linear-gradient(135deg,#ffe58a,#d59b20);display:grid;place-items:center;color:#172033;font-size:27px}
+.panel{background:#1b293d;border:1px solid #40536e;border-radius:15px;padding:13px;margin:12px 0}#announce{font-size:clamp(18px,5vw,24px);font-weight:900;min-height:56px;display:grid;place-items:center}#count{font-size:12px;color:#c1d0e1}
+button{width:100%;border:0;border-radius:12px;padding:14px;font-weight:900;font-size:16px;margin-top:9px}#spin{background:linear-gradient(90deg,#ffdf78,#e4a91d);color:#241900;font-size:19px}button:disabled{opacity:.55}.secondary{background:#293b54;color:white;border:1px solid #536985}.controls{display:grid;grid-template-columns:1fr 1fr;gap:9px}.controls button{font-size:13px}.note{font-size:11px;color:#b9c8d8;line-height:1.5}
+</style></head>
+<body><main>
+<h1>MESSI <span style="color:#f6c94b">VS</span> RONALDO</h1><div class="sub">SPIN BATTLE • FOOTBALL CHALLENGE</div>
+<div class="scores"><div class="score blue">🔵 MESSI<strong id="ms">930</strong><small>POINTS</small></div><div class="score red">🔴 RONALDO<strong id="rs">945</strong><small>POINTS</small></div></div>
+<div class="stage"><div class="pointer"></div><div class="wheel" id="wheel"></div><div class="hub">⚽</div></div>
+<div class="panel"><div id="announce">READY TO SPIN!</div><div id="count">Total spins: 0</div></div>
+<button id="spin">⚽ SPIN NOW</button>
+<div class="controls"><button class="secondary" id="music">🎵 MUSIC: OFF</button><button class="secondary" id="voice">🔊 VOICE: ON</button></div>
+<button class="secondary" id="reset">↻ RESET SCORE</button>
+<p class="note">Only Messi and Ronaldo • Medium speed • One point per spin<br>Tap Music ON once to start the original background tune. Male voice is selected when available on your phone.</p>
+</main>
+<script>
+(()=>{
+const wheel=document.getElementById('wheel'),spin=document.getElementById('spin');let angle=0,m=930,r=945,total=0,busy=false,voiceOn=true,musicOn=false,ctx=null,timer=null;
+for(let i=0;i<8;i++){let el=document.createElement('div');el.className='name';let a=i*45+22.5;el.textContent=i%2===0?'MESSI':'RONALDO';el.style.transform=`rotate(${a}deg) translateY(-${Math.min(115,innerWidth*.285)}px) rotate(-${a}deg)`;wheel.appendChild(el)}
+function say(t){
+ if(!voiceOn||!window.speechSynthesis)return;
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(t);
+ u.lang='en-US';u.rate=0.96;u.pitch=0.98;u.volume=1;
+ // Prefer a natural-sounding English male voice when the device provides one.
+ const voices=speechSynthesis.getVoices();
+ const preferred=voices.find(v=>/en[-_]?(US|GB|AU|CA)/i.test(v.lang) && /male|daniel|david|guy|alex|fred|aaron|google uk english male/i.test(v.name))
+   || voices.find(v=>/en[-_]?(US|GB|AU|CA)/i.test(v.lang) && !/female|zira|samantha|victoria|karen/i.test(v.name))
+   || voices.find(v=>/^en/i.test(v.lang));
+ if(preferred)u.voice=preferred;
+ speechSynthesis.speak(u);
+}
+function stopMusic(){musicOn=false;clearInterval(timer);document.getElementById('music').textContent='🎵 MUSIC: OFF'}
+document.getElementById('music').onclick=()=>{if(musicOn){stopMusic();return}ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();ctx.resume();musicOn=true;document.getElementById('music').textContent='🎵 MUSIC: ON';let n=0,notes=[220,261.63,293.66,261.63,196,246.94,293.66,246.94];timer=setInterval(()=>{if(!musicOn)return;let o=ctx.createOscillator(),g=ctx.createGain(),now=ctx.currentTime;o.type='sine';o.frequency.value=notes[n++%notes.length];g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.035,now+.04);g.gain.exponentialRampToValueAtTime(.0001,now+.27);o.connect(g);g.connect(ctx.destination);o.start(now);o.stop(now+.3)},330)};
+document.getElementById('voice').onclick=()=>{voiceOn=!voiceOn;document.getElementById('voice').textContent=voiceOn?'🔊 VOICE: ON':'🔇 VOICE: OFF';if(!voiceOn&&speechSynthesis)speechSynthesis.cancel()};
+spin.onclick=()=>{if(busy)return;busy=true;spin.disabled=true;document.getElementById('announce').textContent="LET'S SEE, MESSI OR RONALDO? LIKE AND SUBSCRIBE, GUYS!";say("Let's see, Messi or Ronaldo? Like and subscribe, guys!");let chosen=Math.floor(Math.random()*8),target=(360-(chosen*45+22.5)+360)%360,delta=(target-angle%360+360)%360;angle+=1440+delta;wheel.style.transform=`rotate(${angle}deg)`;wheel.addEventListener('transitionend',function done(){let who=chosen%2===0?'MESSI':'RONALDO';if(who==='MESSI')m++;else r++;total++;document.getElementById('ms').textContent=m;document.getElementById('rs').textContent=r;let a=document.getElementById('announce');a.textContent=who+' WINS! +1 POINT 🏆';a.style.color=who==='MESSI'?'#72b6ff':'#ff8188';document.getElementById('count').textContent='Total spins: '+total;busy=false;spin.disabled=false;wheel.removeEventListener('transitionend',done)}, {once:true})};
+document.getElementById('reset').onclick=()=>{if(busy)return;m=930;r=945;total=0;angle=0;wheel.style.transition='none';wheel.style.transform='rotate(0deg)';void wheel.offsetWidth;wheel.style.transition='';document.getElementById('ms').textContent='930';document.getElementById('rs').textContent='945';document.getElementById('announce').textContent='READY TO SPIN!';document.getElementById('announce').style.color='white';document.getElementById('count').textContent='Total spins: 0';if(speechSynthesis)speechSynthesis.cancel()};
+})();
+</script></body></html>

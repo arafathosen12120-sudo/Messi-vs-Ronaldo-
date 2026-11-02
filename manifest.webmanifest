@@ -1,0 +1,10 @@
+{
+  "name": "Messi vs Ronaldo Spin Battle",
+  "short_name": "Spin Battle",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101827",
+  "theme_color": "#101827",
+  "description": "Messi vs Ronaldo spin wheel game"
+}
